@@ -22,6 +22,7 @@ class User(db.Model):
 class Estado (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombreEstado  = db.Column(db.String(100), unique=False, nullable=False)
+    municipios = db.relationship('Municipio', backref='estado', lazy=True)
             
     def __repr__(self):
         return '<Estado %r>' % self.nombreEstado
@@ -32,23 +33,11 @@ class Estado (db.Model):
             "nombreEstado": self.nombreEstado
        }
         
-class Categoria (db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombreCategoria  = db.Column(db.String(100), unique=False, nullable=False)
-        
-    def __repr__(self):
-        return '<Categoria %r>' % self.nombreCategoria
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "nombreCategoria": self.nombreCategoria
-       }
-
 class Municipio (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombreMunicipio  = db.Column(db.String(100), unique=False, nullable=False)
-    idEstado = db.ForeignKey('estado.id')
+    idEstado = db.Column(db.Integer, db.ForeignKey('estado.id'), nullable=False)
+    usuarios = db.relationship('Usuario', backref='municipio', lazy=True)
    
     def __repr__(self):
         return '<Municipio %r>' % self.nombreMunicipio
@@ -58,6 +47,33 @@ class Municipio (db.Model):
             "id": self.id,
             "nombreMunicipio": self.nombreMunicipio,
             "idEstado": self.idEstado,
+        }
+        
+class Categoria (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombreCategoria  = db.Column(db.String(100), unique=False, nullable=False)
+    servicios = db.relationship('Servicio', backref='categoria', lazy=True)   
+    def __repr__(self):
+        return '<Categoria %r>' % self.nombreCategoria
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "nombreCategoria": self.nombreCategoria
+       }
+
+class Plan (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombrePlan  = db.Column(db.String(100), unique=False, nullable=False)
+    usuarios = db.relationship('Usuario', backref='plan', lazy=True)
+   
+    def __repr__(self):
+        return '<Plan %r>' % self.nombrePlan
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "nombrePlan": self.nombrePlan
         }
 
 class Usuario(db.Model):
@@ -71,8 +87,13 @@ class Usuario(db.Model):
     rankVendedor = db.Column(db.Integer, unique=False, nullable=True, default = 0)
     rankComprador = db.Column(db.Integer, unique=False, nullable=True, default = 0)
     foto = db.Column(db.String(100), unique=True, nullable=False)
-    idMunicipio  =  db.ForeignKey('municipio.id')
-    idPlan  = db.ForeignKey('plan.id')
+    idMunicipio  =  db.Column(db.Integer, db.ForeignKey('municipio.id'),nullable=False)
+    idPlan = db.Column(db.Integer, db.ForeignKey('plan.id'), nullable=False)
+    servicios = db.relationship('Servicio', backref='usuario.id', lazy=True)
+    preguntas= db.relationship('Pregunta', backref='usuario.id', lazy=True)
+    pagos = db.relationship('Pago', backref='usuario.id', lazy=True)
+    contratos = db.relationship('Contrato', backref='usuario.id', lazy=True)
+    favoritos = db.relationship('Favorito', backref='usuario.id', lazy=True)
     
     def __repr__(self):
         return '<Usuario %r>' % self.nombreUsr
@@ -96,13 +117,16 @@ class Usuario(db.Model):
 class Servicio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombreServicio = db.Column(db.String(100), unique=False, nullable=False)
-    idsUsrVende = db.ForeignKey('usuario.id')
+    idsUsrVende = db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
     fePublicacion = db.Column(db.Date, unique=False, nullable=False)
     descripcion = db.Column(db.String(1000), unique=False, nullable=True)
-    idCategoria =  db.ForeignKey('categoria.id')
+    idCategoria =  db.Column(db.Integer,db.ForeignKey('categoria.id'), nullable=False)
     statusServicio = db.Column(db.Integer, unique=False, nullable=False)
     inDomicilio = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     palabrasClave = db.Column(db.String(200), unique=False, nullable=True)
+    preguntas = db.relationship('Pregunta', backref='servicio', lazy=True)
+    contratos = db.relationship('Contrato', backref='servicio', lazy=True)
+    favoritoServ = db.relationship('Favorito', backref='servicio', lazy=True)
     
     def __repr__(self):
         return '<Servicio %r>' % self.nombreServicio
@@ -124,8 +148,8 @@ class Servicio(db.Model):
 
 class Pregunta (db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    idServicio  = db.ForeignKey('servicio.id')
-    idUsrPregunta =  db.ForeignKey('usuario.id')
+    idServicio  = db.Column(db.Integer, db.ForeignKey('servicio.id'), nullable=False)
+    idUsrPregunta =  db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
     pregunta = db.Column(db.String(200), unique=False, nullable=True)
     fePregunta= db.Column(db.Date, unique=False, nullable=True)
     respuesta = db.Column(db.String(200), unique=False, nullable=True)
@@ -145,13 +169,27 @@ class Pregunta (db.Model):
             "feRespuesta": self.feRespuesta
             
         }
+
+class FormaPago (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    formaPago  = db.Column(db.String(100), unique=False, nullable=False)
+    #pagos = db.relationship('Pago', backref='fpago', lazy=True)
+   
+    def __repr__(self):
+        return '<Forma de pago %r>' % self.formaPago
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "formaPago": self.formaPago
+        }
         
 class Pago (db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    idUsuario = db.ForeignKey('Usuario.id')
+    idUsuario = db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
     feFacturacion = db.Column(db.Date, unique=False, nullable=True)
     montoPago = db.Column(db.Float, unique=False, nullable=True)
-    idFormaPago = db.ForeignKey('FormaPago.id')
+    idFormaPago = db.Column(db.Integer)#, db.ForeignKey('fpago.id'), nullable=False)
     fePago = db.Column(db.Date, unique=False, nullable=True)
     statusPago = db.Column(db.Integer, unique=False, nullable=False)
     
@@ -173,8 +211,9 @@ class Pago (db.Model):
         
 class Contrato (db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    idUsrCompra =  db.ForeignKey('usuario.id')
-    IdServicio = db.ForeignKey('servicio.id')
+    idUsrCompra =  db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
+    fePago = db.Column(db.Date, unique=False, nullable=True)
+    IdServicio = db.Column(db.Integer,db.ForeignKey('servicio.id'), nullable=False)
     feContrato = db.Column(db.Date, unique=False, nullable=True)
     puntosVendedor =  db.Column(db.Integer, unique=False, nullable=False)
     puntosComprador =  db.Column(db.Integer, unique=False, nullable=False)
@@ -191,38 +230,11 @@ class Contrato (db.Model):
             "puntosVendedor": self.puntosVendedor,
             "puntosComprador": self.puntosComprador
         } 
-
-class FormaPago (db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    formaPago  = db.Column(db.String(100), unique=False, nullable=False)
-   
-    def __repr__(self):
-        return '<Forma de pago %r>' % self.formaPago
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "formaPago": self.formaPago
-        }
-
-
-class Plan (db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombrePlan  = db.Column(db.String(100), unique=False, nullable=False)
-   
-    def __repr__(self):
-        return '<Plan %r>' % self.nombrePlan
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "nombrePlan": self.nombrePlan
-        }
-        
+          
 class Favorito (db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    idServicio =  db.ForeignKey('servicio.id')
-    idUsuario  =  db.ForeignKey('usuario.id')
+    idServicio =   db.Column(db.Integer, db.ForeignKey('servicio.id'), nullable=False)
+    idUsuario  =  db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
    
     def __repr__(self):
         return '<Servicio %r>' % self.idServicio
