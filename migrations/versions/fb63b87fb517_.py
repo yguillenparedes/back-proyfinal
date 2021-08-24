@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c19e5f438ac3
+Revision ID: fb63b87fb517
 Revises: 
-Create Date: 2021-08-24 18:13:15.672170
+Create Date: 2021-08-24 18:20:30.624345
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c19e5f438ac3'
+revision = 'fb63b87fb517'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,7 +28,7 @@ def upgrade():
     sa.Column('nombreEstado', sa.String(length=100), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('forma_pago',
+    op.create_table('formapago',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('formaPago', sa.String(length=100), nullable=False),
     sa.PrimaryKeyConstraint('id')
@@ -78,9 +78,10 @@ def upgrade():
     sa.Column('idUsuario', sa.Integer(), nullable=False),
     sa.Column('feFacturacion', sa.Date(), nullable=True),
     sa.Column('montoPago', sa.Float(), nullable=True),
-    sa.Column('idFormaPago', sa.Integer(), nullable=True),
+    sa.Column('idFormaPago', sa.Integer(), nullable=False),
     sa.Column('fePago', sa.Date(), nullable=True),
     sa.Column('statusPago', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['idFormaPago'], ['formapago.id'], ),
     sa.ForeignKeyConstraint(['idUsuario'], ['usuario.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -144,7 +145,7 @@ def downgrade():
     op.drop_table('municipio')
     op.drop_table('user')
     op.drop_table('plan')
-    op.drop_table('forma_pago')
+    op.drop_table('formapago')
     op.drop_table('estado')
     op.drop_table('categoria')
     # ### end Alembic commands ###

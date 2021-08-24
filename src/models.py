@@ -170,10 +170,10 @@ class Pregunta (db.Model):
             
         }
 
-class FormaPago (db.Model):
+class Formapago (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     formaPago  = db.Column(db.String(100), unique=False, nullable=False)
-    #pagos = db.relationship('Pago', backref='fpago', lazy=True)
+    pagos = db.relationship('Pago', backref='formapago', lazy=True)
    
     def __repr__(self):
         return '<Forma de pago %r>' % self.formaPago
@@ -189,7 +189,7 @@ class Pago (db.Model):
     idUsuario = db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
     feFacturacion = db.Column(db.Date, unique=False, nullable=True)
     montoPago = db.Column(db.Float, unique=False, nullable=True)
-    idFormaPago = db.Column(db.Integer)#, db.ForeignKey('fpago.id'), nullable=False)
+    idFormaPago = db.Column(db.Integer, db.ForeignKey('formapago.id'), nullable=False)
     fePago = db.Column(db.Date, unique=False, nullable=True)
     statusPago = db.Column(db.Integer, unique=False, nullable=False)
     
