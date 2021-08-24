@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ecc20eb9d445
+Revision ID: 4a559d81b2c5
 Revises: 
-Create Date: 2021-08-23 17:56:00.244202
+Create Date: 2021-08-23 19:54:12.653685
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ecc20eb9d445'
+revision = '4a559d81b2c5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,8 +25,6 @@ def upgrade():
     )
     op.create_table('contrato',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('idUsrCompra', sa.Integer(), nullable=False),
-    sa.Column('IdServicio', sa.Integer(), nullable=False),
     sa.Column('feContrato', sa.Date(), nullable=True),
     sa.Column('puntosVendedor', sa.Integer(), nullable=False),
     sa.Column('puntosComprador', sa.Integer(), nullable=False),
@@ -38,9 +36,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('favorito',
-    sa.Column('idServicio', sa.Integer(), nullable=False),
-    sa.Column('idUsuario', sa.Integer(), nullable=False),
-    sa.PrimaryKeyConstraint('idServicio', 'idUsuario')
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('forma_pago',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -50,15 +47,12 @@ def upgrade():
     op.create_table('municipio',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('nombreMunicipio', sa.String(length=100), nullable=False),
-    sa.Column('idEstado', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('pago',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('idUsuario', sa.Integer(), nullable=False),
     sa.Column('feFacturacion', sa.Date(), nullable=True),
     sa.Column('montoPago', sa.Float(), nullable=True),
-    sa.Column('idFormaPago', sa.Integer(), nullable=True),
     sa.Column('fePago', sa.Date(), nullable=True),
     sa.Column('statusPago', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
@@ -70,8 +64,6 @@ def upgrade():
     )
     op.create_table('pregunta',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('idServicio', sa.Integer(), nullable=False),
-    sa.Column('idUsrPregunta', sa.Integer(), nullable=False),
     sa.Column('pregunta', sa.String(length=200), nullable=True),
     sa.Column('fePregunta', sa.Date(), nullable=True),
     sa.Column('respuesta', sa.String(length=200), nullable=True),
@@ -81,10 +73,8 @@ def upgrade():
     op.create_table('servicio',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('nombreServicio', sa.String(length=100), nullable=False),
-    sa.Column('idsUsrVende', sa.Integer(), nullable=False),
     sa.Column('fePublicacion', sa.Date(), nullable=False),
     sa.Column('descripcion', sa.String(length=1000), nullable=True),
-    sa.Column('idCategoria', sa.Integer(), nullable=False),
     sa.Column('statusServicio', sa.Integer(), nullable=False),
     sa.Column('inDomicilio', sa.Boolean(), nullable=False),
     sa.Column('palabrasClave', sa.String(length=200), nullable=True),
@@ -109,8 +99,6 @@ def upgrade():
     sa.Column('rankVendedor', sa.Integer(), nullable=True),
     sa.Column('rankComprador', sa.Integer(), nullable=True),
     sa.Column('foto', sa.String(length=100), nullable=False),
-    sa.Column('idMunicipio', sa.Integer(), nullable=True),
-    sa.Column('idPlan', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('correoUsr'),
     sa.UniqueConstraint('foto'),
