@@ -9,7 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, Categoria
 #from models import Person
 
 app = Flask(__name__)
@@ -30,6 +30,7 @@ def handle_invalid_usage(error):
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
+    
 
 @app.route('/user', methods=['GET'])
 def handle_hello():
@@ -39,6 +40,30 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route('/categoria', methods=['GET'])
+def obtener_categorias():
+    categorias = Categoria.query.all() 
+    print(categorias)
+    TodasCategorias = [categoria.serialize() for categoria in categorias] 
+    return jsonify({"mensaje": "Lista de categorias", "Categorias": TodasCategorias})
+
+@app.route('/categoria/<id>', methods=['GET'])
+def obtener_categoria_id(id):
+    categoria_encontrada = Categoria.query.get(id)
+    if not categoria_encontrada:
+        return jsonify({ "mensaje": 'categoria no encontrada', "categoria": {}})
+    return jsonify({ "mensaje": 'tarea obtenida satisfactoriamente', "categoria": categoria_encontrada.serialize()})
+
+
+@app.route('/categoria', methods=['POST'])
+def agregar_categorias_post():
+    nombreCategoria = request.json["nombreCategoria"]
+    nueva_categoria = Categoria(nombreCategoria = nombreCategoria)
+    db.session.add(nueva_categoria)
+    db.session.commit()
+    return jsonify({"mensaje":"Categoría registrada exitosamente", "categoría": nueva_categoria.serialize()})
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
