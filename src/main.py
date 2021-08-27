@@ -46,24 +46,46 @@ def obtener_categorias():
     categorias = Categoria.query.all() 
     print(categorias)
     TodasCategorias = [categoria.serialize() for categoria in categorias] 
-    return jsonify({"mensaje": "Lista de categorias", "Categorias": TodasCategorias})
+    return jsonify({"mensaje": "Lista de categorías", "Categorías": TodasCategorias})
 
 @app.route('/categoria/<id>', methods=['GET'])
 def obtener_categoria_id(id):
     categoria_encontrada = Categoria.query.get(id)
     if not categoria_encontrada:
-        return jsonify({ "mensaje": 'categoria no encontrada', "categoria": {}})
-    return jsonify({ "mensaje": 'tarea obtenida satisfactoriamente', "categoria": categoria_encontrada.serialize()})
+        return jsonify({ "mensaje": 'categoría no encontrada', "Categoría": {}})
+    return jsonify({ "mensaje": 'Categoría obtenida satisfactoriamente', "Categoría": categoria_encontrada.serialize()})
 
 
 @app.route('/categoria', methods=['POST'])
 def agregar_categorias_post():
     nombreCategoria = request.json["nombreCategoria"]
     nueva_categoria = Categoria(nombreCategoria = nombreCategoria)
+    categoria_encontrada = Categoria.query.filter_by(nombreCategoria = nombreCategoria).first()
+    if categoria_encontrada:
+        return jsonify({ "mensaje": 'La categoría ya existe', "Categoría": nombreCategoria})
     db.session.add(nueva_categoria)
     db.session.commit()
-    return jsonify({"mensaje":"Categoría registrada exitosamente", "categoría": nueva_categoria.serialize()})
+    return jsonify({"mensaje":"Categoría registrada exitosamente", "Categoría": nueva_categoria.serialize()})
+    
 
+@app.route('/categoria/<id>', methods=['PUT'])
+def actualizar_categorias(id):
+    categoria_encontrada = Categoria.query.get(id)
+    if not categoria_encontrada:
+        return jsonify({ "mensaje": 'Categoría no encontrada', "Categoría": {}})
+    categoria_encontrada.nombreCategoria = request.json["nombreCategoria"]
+    db.session.commit()
+    return jsonify({ "mensaje": 'Categoría actualizada exitosamente', "Categoría": categoria_encontrada.serialize()})
+
+
+@app.route('/categoria/<id>', methods=['DELETE'])
+def borrar_categorias(id):
+    categoria_encontrada = Categoria.query.get(id)
+    if not categoria_encontrada:
+        return jsonify({ "mensaje": 'Categoría no encontrada', "Categoría": {}})
+    db.session.delete(categoria_encontrada)
+    db.session.commit()
+    return jsonify({ "mensaje": 'Categoría eliminada satisfactoriamente', "Categoría": categoria_encontrada.serialize()})
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
