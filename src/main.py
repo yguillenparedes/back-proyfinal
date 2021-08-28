@@ -9,7 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Categoria
+from models import db, Categoria, Usuario
 #from models import Person
 
 app = Flask(__name__)
@@ -17,6 +17,7 @@ app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db)
+CORS(app)
 db.init_app(app)
 CORS(app)
 setup_admin(app)
@@ -64,6 +65,36 @@ def agregar_categorias_post():
     db.session.commit()
     return jsonify({"mensaje":"Categoría registrada exitosamente", "categoría": nueva_categoria.serialize()})
 
+@app.route('/usuarios', methods=['GET'])
+def obtener_usuarios():
+    usuarios = Usuario.query.all() 
+    Todoslosusuarios = [usuarios.serialize() for usuarios in usuarios] 
+    return jsonify({"mensaje": "Lista de usuarios", "usuarios": Todoslosusuarios})
+
+@app.route('/usuarios/<id>', methods=['GET'])
+def obtener_usuario_id(id):
+    usuario_encontrado = Usuario.query.get(id)
+    if not usuario_encontrado:
+        return jsonify({ "mensaje": 'usuario no encontrada', "usuario": {}})
+    return jsonify({ "mensaje": 'usuario obtenido satisfactoriamente', "usuario": usuario_encontrado.serialize()})
+
+@app.route('/usuarios', methods=['POST'])
+def agregar_usuarios_post():
+    logUsr = request.json["logUsr"]
+    nombreUsuario = request.json["nombreUsr"]
+    correousuario = request.json["correoUsr"]
+    feRegistro = request.json["feRegistro"]
+    txCredenciales = request.json["txCredenciales"]
+    rankVendedor = int(request.json["rankVendedor"])
+    rankComprador = int(request.json["rankComprador"])
+    foto = request.json["foto"]
+    idMunicipio = int(request.json["idMunicipio"])
+    idPlan = int(request.json["idPlan"])
+    claveUsr= request.json["claveUsr"]
+    nuevo_usuario = Usuario(nombreUsr = nombreUsuario, logUsr=logUsr, correoUsr=correousuario, feRegistro=feRegistro, txCredenciales=txCredenciales, rankVendedor=rankVendedor, rankComprador=rankComprador,foto=foto, idMunicipio=idMunicipio, idPlan = idPlan, claveUsr=claveUsr)
+    db.session.add(nuevo_usuario)
+    db.session.commit()
+    return jsonify({"mensaje":"usuario registrado exitosamente", "usuario": nuevo_usuario.serialize()})
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

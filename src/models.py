@@ -96,7 +96,8 @@ class Usuario(db.Model):
     favoritos = db.relationship('Favorito', backref='usuario.id', lazy=True)
     
     def __repr__(self):
-        return '<Usuario %r>' % self.nombreUsr
+        return '<Usuario %r>' % self.nombreUsr 
+        # % self.logUsr % self.correoUsr % self.claveUsr % self.txCredenciales % self.foto
 
     def serialize(self):
         return {
@@ -109,7 +110,7 @@ class Usuario(db.Model):
             "rankVendedor": self.rankVendedor,
             "rankComprador": self.rankComprador,
             "foto": self.foto,
-            "idMunicipio": self.idmunicipio,
+            "idMunicipio": self.idMunicipio,
             "idPlan": self.idPlan
         }
 
@@ -135,7 +136,7 @@ class Servicio(db.Model):
         return {
             "id": self.id,
             "nombreServicio": self.nombreServicio,
-            "idUsrVende": self.idUsrVende,
+            "idUsrVende": self.idsUsrVende,
             "fePublicacion": self.fePublicacion,
             "descripcion": self.descripcion,
             "txCredenciales": self.txCredenciales,
@@ -166,7 +167,7 @@ class Pregunta (db.Model):
             "pregunta": self.pregunta,
             "fePregunta": self.fePregunta,
             "respuesta": self.respuesta,
-            "feRespuesta": self.feRespuesta
+            "feRespuesta": self.ferespuesta
             
         }
 
