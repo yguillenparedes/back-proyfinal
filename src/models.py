@@ -97,7 +97,7 @@ class Usuario(db.Model):
     
     def __repr__(self):
         return '<Usuario %r>' % self.nombreUsr 
-        # % self.logUsr % self.correoUsr % self.claveUsr % self.txCredenciales % self.foto
+        
 
     def serialize(self):
         return {
@@ -128,6 +128,8 @@ class Servicio(db.Model):
     preguntas = db.relationship('Pregunta', backref='servicio', lazy=True)
     contratos = db.relationship('Contrato', backref='servicio', lazy=True)
     favoritoServ = db.relationship('Favorito', backref='servicio', lazy=True)
+    txCredenciales = db.Column(db.String(1000), unique=False, nullable=True)
+    foto = db.Column(db.String(100), unique=True, nullable=False)
     
     def __repr__(self):
         return '<Servicio %r>' % self.nombreServicio
@@ -136,7 +138,7 @@ class Servicio(db.Model):
         return {
             "id": self.id,
             "nombreServicio": self.nombreServicio,
-            "idUsrVende": self.idsUsrVende,
+            "idUsrVende": self.idUsrVende,
             "fePublicacion": self.fePublicacion,
             "descripcion": self.descripcion,
             "txCredenciales": self.txCredenciales,
