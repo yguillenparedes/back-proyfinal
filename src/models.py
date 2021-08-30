@@ -118,7 +118,7 @@ class Usuario(db.Model):
 class Servicio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombreServicio = db.Column(db.String(100), unique=False, nullable=False)
-    idsUsrVende = db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
+    idUsrVende = db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
     fePublicacion = db.Column(db.Date, unique=False, nullable=False)
     descripcion = db.Column(db.String(1000), unique=False, nullable=True)
     idCategoria =  db.Column(db.Integer,db.ForeignKey('categoria.id'), nullable=False)
@@ -138,7 +138,7 @@ class Servicio(db.Model):
         return {
             "id": self.id,
             "nombreServicio": self.nombreServicio,
-            "idsUsrVende": self.idsUsrVende,
+            "idUsrVende": self.idUsrVende,
             "fePublicacion": self.fePublicacion,
             "descripcion": self.descripcion,
             "txCredenciales": self.txCredenciales,
@@ -194,6 +194,7 @@ class Pago (db.Model):
     montoPago = db.Column(db.Float, unique=False, nullable=True)
     idFormaPago = db.Column(db.Integer, db.ForeignKey('formapago.id'), nullable=False)
     fePago = db.Column(db.Date, unique=False, nullable=True)
+    nroConfirmacion = db.Column(db.String(15), unique=False, nullable=True)  
     statusPago = db.Column(db.Integer, unique=False, nullable=False)
     
     def __repr__(self):
