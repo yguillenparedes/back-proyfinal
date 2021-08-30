@@ -118,7 +118,7 @@ class Usuario(db.Model):
 class Servicio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombreServicio = db.Column(db.String(100), unique=False, nullable=False)
-    idsUsrVende = db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
+    idUsrVende = db.Column(db.Integer,db.ForeignKey('usuario.id'), nullable=False)
     fePublicacion = db.Column(db.Date, unique=False, nullable=False)
     descripcion = db.Column(db.String(1000), unique=False, nullable=True)
     idCategoria =  db.Column(db.Integer,db.ForeignKey('categoria.id'), nullable=False)
