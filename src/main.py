@@ -9,7 +9,11 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
+<<<<<<< HEAD
+from models import db, Categoria, Usuario, Pago, Pregunta
+=======
 from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio
+>>>>>>> develop
 #from models import Person
 
 app = Flask(__name__)
@@ -150,6 +154,21 @@ def agregar_pagos_post():
     db.session.commit()
     return jsonify({"mensaje":"Pago registrado exitosamente", "Pagos": nuevo_pago.serialize()})
 
+@app.route('/pago/<id>', methods=['PUT'])
+def actualizar_pago(id):
+    pago_encontrado = Pago.query.get(id)
+    if not pago_encontrado:
+        return jsonify({ "mensaje": 'Pago no encontrado', "Pago": {}})
+    pago_encontrado.idUsuario = request.json["idUsuario"]
+    pago_encontrado.feFacturacion = request.json["feFacturacion"]
+    pago_encontrado.montoPago = request.json["montoPago"]
+    pago_encontrado.idFormaPago = request.json["idFormaPago"]
+    pago_encontrado.nroConfirmacion = request.json["nroConfirmacion"]
+    pago_encontrado.fePago = request.json["fePago"]
+    pago_encontrado.statusPago = request.json["statusPago"]
+    db.session.commit()
+    return jsonify({ "mensaje": 'Pago actualizado exitosamente', "Pago": pago_encontrado.serialize()})
+
 @app.route('/pago/<id>', methods=['DELETE'])
 def borrar_pagos(id):
     pago_encontrado = Pago.query.get(id)
@@ -157,10 +176,58 @@ def borrar_pagos(id):
         return jsonify({ "mensaje": 'Pago no encontrado', "Pagos": {}})
     db.session.delete(pago_encontrado)
     db.session.commit()
-    return jsonify({ "mensaje": 'Pago eliminado satisfactoriamente', "Pagso": pago_encontrado.serialize()})
+    return jsonify({ "mensaje": 'Pago eliminado satisfactoriamente', "Pago": pago_encontrado.serialize()})
 
 #Endpoints Preguntas
+@app.route('/pregunta', methods=['GET'])
+def obtener_preguntas():
+    preguntas = Pregunta.query.all() 
+    print(preguntas)
+    TodasPreguntas = [pregunta.serialize() for pregunta in preguntas] 
+    return jsonify({"mensaje": "Lista de preguntas", "Preguntas": TodasPreguntas})
 
+@app.route('/pregunta/<id>', methods=['GET'])
+def obtener_pregunta_id(id):
+    pregunta_encontrada = Pregunta.query.get(id)
+    if not pregunta_encontrada:
+        return jsonify({ "mensaje": 'Pregunta no encontrada', "Pregunta": {}})
+    return jsonify({ "mensaje": 'Pregunta leida satisfactoriamente', "Pregunta": pregunta_encontrada.serialize()})
+
+@app.route('/pregunta', methods=['POST'])
+def agregar_pregunta_post():
+    idServicio = request.json["idServicio"]
+    idUsrPregunta = request.json["idUsrPregunta"]
+    pregunta = request.json["pregunta"]
+    fePregunta = request.json["fePregunta"]
+    respuesta = request.json["respuesta"]
+    feRespuesta = request.json["feRespuesta"]
+    nueva_pregunta = Pregunta(idServicio = idServicio, idUsrPregunta = idUsrPregunta, pregunta = pregunta, fePregunta = fePregunta, respuesta = respuesta, feRespuesta = feRespuesta)
+    db.session.add(nueva_pregunta)
+    db.session.commit()
+    return jsonify({"mensaje":"Pregunta registrada exitosamente", "Pregunta": nueva_pregunta.serialize()})
+
+@app.route('/pregunta/<id>', methods=['PUT'])
+def actualizar_pregunta(id):
+    pregunta_encontrada = Pregunta.query.get(id)
+    if not pregunta_encontrada:
+        return jsonify({ "mensaje": 'Pregunta no encontrada', "Pregunta": {}})
+    pregunta_encontrada.idServicio = request.json["idServicio"]
+    pregunta_encontrada.idUsrPregunta = request.json["idUsrPregunta"]
+    pregunta_encontrada.pregunta = request.json["pregunta"]
+    pregunta_encontrada.fePregunta = request.json["fePregunta"]
+    pregunta_encontrada.respuesta = request.json["respuesta"]
+    pregunta_encontrada.feRespuesta = request.json["feRespuesta"]
+    db.session.commit()
+    return jsonify({ "mensaje": 'Pregunta actualizada exitosamente', "Pregunta": pregunta_encontrada.serialize()})
+
+@app.route('/pregunta/<id>', methods=['DELETE'])
+def borrar_pregunta(id):
+    pregunta_encontrada = Pregunta.query.get(id)
+    if not pregunta_encontrada:
+        return jsonify({ "mensaje": 'Pregunta no encontrada', "Pregunta": {}})
+    db.session.delete(pregunta_encontrada)
+    db.session.commit()
+    return jsonify({ "mensaje": 'Pregunta eliminada satisfactoriamente', "Pregunta": pregunta_encontrada.serialize()})
 
 @app.route('/usuarios/<id>', methods=['PUT'])
 def actualizar_usuarios(id):
