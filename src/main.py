@@ -9,7 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Categoria, Usuario
+from models import db, Categoria, Usuario, Pago
 #from models import Person
 
 app = Flask(__name__)
@@ -117,6 +117,47 @@ def borrar_categorias(id):
     db.session.delete(categoria_encontrada)
     db.session.commit()
     return jsonify({ "mensaje": 'Categoría eliminada satisfactoriamente', "Categoría": categoria_encontrada.serialize()})
+
+## Endpoints pagos
+@app.route('/pago', methods=['GET'])
+def obtener_pagos():
+    pagos = Pago.query.all() 
+    print(pagos)
+    TodosPagos = [pago.serialize() for pago in pagos] 
+    return jsonify({"mensaje": "Lista de pagos", "Pagos": TodosPagos})
+
+@app.route('/pago/<id>', methods=['GET'])
+def obtener_pago_id(id):
+    pago_encontrado = Pago.query.get(id)
+    if not pago_encontrado:
+        return jsonify({ "mensaje": 'Pago no encontrado', "Pago": {}})
+    return jsonify({ "mensaje": 'Pago leido satisfactoriamente', "Pago": pago_encontrado.serialize()})
+
+@app.route('/pago', methods=['POST'])
+def agregar_pagos_post():
+    idUsuario = request.json["idUsuario"]
+    feFacturacion = request.json["feFacturacion"]
+    montoPago = request.json["montoPago"]
+    idFormaPago = request.json["idFormaPago"]
+    nroConfirmacion = request.json["nroConfirmacion"]
+    fePago = request.json["fePago"]
+    statusPago = request.json["statusPago"]
+    nuevo_pago = Pago(idUsuario = idUsuario, feFacturacion = feFacturacion, montoPago = montoPago, idFormaPago = idFormaPago, nroConfirmacion = nroConfirmacion, fePago = fePago, statusPago = statusPago)
+    nroConfirmacion_encontrado = Pago.query.filter_by(nroConfirmacion = nroConfirmacion).first()
+    if nroConfirmacion_encontrado:
+        return jsonify({ "mensaje": 'El número de confirmación asociado al pago ya está registrado', "Pagos": nroConfirmacion})
+    db.session.add(nuevo_pago)
+    db.session.commit()
+    return jsonify({"mensaje":"Pago registrado exitosamente", "Pagos": nuevo_pago.serialize()})
+
+@app.route('/pago/<id>', methods=['DELETE'])
+def borrar_pagos(id):
+    pago_encontrado = Pago.query.get(id)
+    if not pago_encontrado:
+        return jsonify({ "mensaje": 'Pago no encontrado', "Pagos": {}})
+    db.session.delete(pago_encontrado)
+    db.session.commit()
+    return jsonify({ "mensaje": 'Pago eliminado satisfactoriamente', "Pagso": pago_encontrado.serialize()})
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

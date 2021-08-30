@@ -192,6 +192,7 @@ class Pago (db.Model):
     montoPago = db.Column(db.Float, unique=False, nullable=True)
     idFormaPago = db.Column(db.Integer, db.ForeignKey('formapago.id'), nullable=False)
     fePago = db.Column(db.Date, unique=False, nullable=True)
+    nroConfirmacion = db.Column(db.String(15), unique=False, nullable=True)  
     statusPago = db.Column(db.Integer, unique=False, nullable=False)
     
     def __repr__(self):
