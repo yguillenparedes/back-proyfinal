@@ -154,7 +154,7 @@ class Pregunta (db.Model):
     pregunta = db.Column(db.String(200), unique=False, nullable=True)
     fePregunta= db.Column(db.Date, unique=False, nullable=True)
     respuesta = db.Column(db.String(200), unique=False, nullable=True)
-    ferespuesta = db.Column(db.Date, unique=False, nullable=True)
+    feRespuesta = db.Column(db.Date, unique=False, nullable=True)
     
     def __repr__(self):
         return '<Pregunta %r>' % self.pregunta
@@ -167,7 +167,7 @@ class Pregunta (db.Model):
             "pregunta": self.pregunta,
             "fePregunta": self.fePregunta,
             "respuesta": self.respuesta,
-            "feRespuesta": self.ferespuesta
+            "feRespuesta": self.feRespuesta
             
         }
 
