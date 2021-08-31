@@ -9,11 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-<<<<<<< HEAD
-from models import db, Categoria, Usuario, Pago, Pregunta
-=======
-from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio
->>>>>>> develop
+from models import db, Categoria, Usuario, Contrato, Estado, Formapago, Municipio, Plan, Pregunta, Servicio, Pago
 #from models import Person
 
 app = Flask(__name__)
@@ -135,6 +131,15 @@ def obtener_pago_id(id):
     pago_encontrado = Pago.query.get(id)
     if not pago_encontrado:
         return jsonify({ "mensaje": 'Pago no encontrado', "Pago": {}})
+    return jsonify({ "mensaje": 'Pago leido satisfactoriamente', "Pago": pago_encontrado.serialize()})
+
+@app.route('/pagoUsr/<idUsuario>', methods=['GET'])
+def obtener_pago_usr(idUsuario):
+    pago_encontrado = Pago.query.filter_by(idUsuario = idUsuario).first()
+    if not pago_encontrado:
+        return jsonify({ "mensaje": 'Pago no encontrado', "Pago": {}})
+    #pago_encontrado = Pago.query.filter_by(idUsuario = idUsuario)
+    pago_encontrado = Pago.query.filter_by(idUsuario = idUsuario).all()
     return jsonify({ "mensaje": 'Pago leido satisfactoriamente', "Pago": pago_encontrado.serialize()})
 
 @app.route('/pago', methods=['POST'])
@@ -271,7 +276,7 @@ def obtener_estado_id(id):
 def obtener_formas_de_pago():
     forma_de_pago = Formapago.query.all() 
     Todaslasformasdepago = [forma_de_pago.serialize() for forma_de_pago in forma_de_pago] 
-    return jsonify({"mensaje": "Lista de pagos", "pagos": Todaslasformasdepago})
+    return jsonify({"mensaje": "Lista de formas de pago", "pagos": Todaslasformasdepago})
 
 @app.route('/formadepago/<id>', methods=['GET'])
 def obtener_formas_de_pago_id(id):
@@ -322,7 +327,7 @@ def obtener_servicios_id(id):
 @app.route('/servicios', methods=['POST'])
 def agregar_servicios_post():
     nombreServicio = request.json["nombreServicio"]
-    idsUsrVende = int(request.json["idsUsrVende"])
+    idUsrVende = int(request.json["idUsrVende"])
     fePublicacion = request.json["fePublicacion"]
     descripcion = request.json["descripcion"]
     txCredenciales = request.json["txCredenciales"]
@@ -331,7 +336,7 @@ def agregar_servicios_post():
     idCategoria = int(request.json["idCategoria"])
     statusServicio = int(request.json["statusServicio"])
     palabrasClave= request.json["palabrasClave"]
-    nuevo_servicio = Servicio(nombreServicio = nombreServicio, idsUsrVende=idsUsrVende, fePublicacion=fePublicacion, descripcion=descripcion, txCredenciales=txCredenciales, inDomicilio=inDomicilio,foto=foto, idCategoria=idCategoria, statusServicio = statusServicio, palabrasClave=palabrasClave)
+    nuevo_servicio = Servicio(nombreServicio = nombreServicio, idUsrVende=idUsrVende, fePublicacion=fePublicacion, descripcion=descripcion, txCredenciales=txCredenciales, inDomicilio=inDomicilio,foto=foto, idCategoria=idCategoria, statusServicio = statusServicio, palabrasClave=palabrasClave)
     db.session.add(nuevo_servicio)
     db.session.commit()
     return jsonify({"mensaje":"servicio registrado exitosamente", "servicio": nuevo_servicio.serialize()})
@@ -348,6 +353,7 @@ def actualizar_servicios(id):
     servicio_encontrado.foto = request.json["foto"]
     servicio_encontrado.idCategoria = request.json["idCategoria"]
     servicio_encontrado.statusServicio = request.json["statusServicio"]
+    servicio_encontrado.palabrasClave = request.json["palabrasClave"]
     db.session.commit()
     return jsonify({ "mensaje": 'Servicio actualizado exitosamente', "Servicio": servicio_encontrado.serialize()})    
 
