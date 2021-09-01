@@ -3,16 +3,21 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 import sys
-from flask import Flask, request, jsonify, url_for
+from flask import Flask, request, jsonify, url_for,redirect,flash,render_template   
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio
+from flask_login import login_user, current_user, logout_user, login_required,LoginManager
+from flask_mail import Message
+
 #from models import Person
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
+login_manager = LoginManager(app)
 app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -84,6 +89,13 @@ def obtener_usuarios():
     Todoslosusuarios = [usuarios.serialize() for usuarios in usuarios] 
     return jsonify({"mensaje": "Lista de usuarios", "usuarios": Todoslosusuarios})
 
+@login_manager.user_loader
+def load_user(user_id):
+    for user in Usuario:
+        if user.id == int(user_id):
+            return user
+    return None    
+
 @app.route('/usuarios/<id>', methods=['GET'])
 def obtener_usuario_id(id):
     usuario_encontrado = Usuario.query.get(id)
@@ -94,7 +106,7 @@ def obtener_usuario_id(id):
 @app.route('/usuarios', methods=['POST'])
 def agregar_usuarios_post():
     logUsr = request.json["logUsr"]
-    nombreUsuario = request.json["nombreUsr"]
+    nombreUsr = request.json["nombreUsr"]
     correousuario = request.json["correoUsr"]
     feRegistro = request.json["feRegistro"]
     txCredenciales = request.json["txCredenciales"]
@@ -104,7 +116,10 @@ def agregar_usuarios_post():
     idMunicipio = int(request.json["idMunicipio"])
     idPlan = int(request.json["idPlan"])
     claveUsr= request.json["claveUsr"]
-    nuevo_usuario = Usuario(nombreUsr = nombreUsuario, logUsr=logUsr, correoUsr=correousuario, feRegistro=feRegistro, txCredenciales=txCredenciales, rankVendedor=rankVendedor, rankComprador=rankComprador,foto=foto, idMunicipio=idMunicipio, idPlan = idPlan, claveUsr=claveUsr)
+    numPhone=request.json["numPhone"]
+    cedula=request.json["cedula"]
+    edad=int(request.json["edad"])
+    nuevo_usuario = Usuario(edad=edad, nombreUsr = nombreUsr, cedula=cedula,logUsr=logUsr, numPhone=numPhone, correoUsr=correousuario, feRegistro=feRegistro, txCredenciales=txCredenciales, rankVendedor=rankVendedor, rankComprador=rankComprador,foto=foto, idMunicipio=idMunicipio, idPlan = idPlan, claveUsr=claveUsr)
     db.session.add(nuevo_usuario)
     db.session.commit()
     return jsonify({"mensaje":"usuario registrado exitosamente", "usuario": nuevo_usuario.serialize()})
@@ -131,7 +146,9 @@ def actualizar_usuarios(id):
     usuario_encontrado.foto = request.json["foto"]
     usuario_encontrado.idMunicipio = request.json["idMunicipio"]
     usuario_encontrado.idPlan = request.json["idPlan"]
+    usuario_encontrado.numPhone = request.json["numPhone"]
     db.session.commit()
+
     return jsonify({ "mensaje": 'Usuario actualizado exitosamente', "Usuario": usuario_encontrado.serialize()})    
 
 @app.route('/usuarios/<id>', methods=['DELETE'])
@@ -249,19 +266,41 @@ def borrar_servicios(id):
     db.session.commit()
     return jsonify({ "mensaje": ' eliminado satisfactoriamente', "": servicio_encontrado.serialize()})
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('/'))
 
-# @app.route('/pregunta', methods=['GET'])
-# def obtener_pregunta():
-#     pregunta = Pregunta.query.all() 
-#     Todaslospregunta = [pregunta.serialize() for pregunta in pregunta] 
-#     return jsonify({"mensaje": "Lista de preguntas", "pregunta": Todaslospregunta})
 
-# @app.route('/pregunta/<id>', methods=['GET'])
-# def obtener_pregunta_id(id):
-#     pregunta_encontrada = Pregunta.query.get(id)
-#     if not pregunta_encontrada:
-#         return jsonify({ "mensaje": 'pregunta no encontrada', "pregunta": {}})
-#     return jsonify({ "mensaje": 'pregunta obtenida satisfactoriamente', "pregunta": pregunta_encontrada.serialize()})
+# @app.route("/usuarios/<string:logUsr>")
+# def user_posts(logUsr):
+#     page = request.args.get('page', 1, type=int)
+#     user = Usuario.query.filter_by(logUsr=logUsr).first_or_404()
+#     posts = Servicio.query.filter_by(author=user)\
+#         .order_by(Servicio.date_posted.desc())\
+#         .paginate(page=page, per_page=5)
+#     return render_template('user_posts.html', posts=posts, user=user)
+
+# def send_reset_email(user):
+#     token = user.get_reset_token()
+#     msg = Message('Password Reset Request',
+#                   sender='noreply@demo.com',
+#                   recipients=[user.email])
+#     msg.body = f'''To reset your password, visit the following link:
+# {url_for('reset_token', token=token, _external=True)}'''
+    
+
+# @app.route("/reset_password", methods=['GET', 'POST'])
+# def reset_request():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('home'))
+#     form = RequestResetForm()
+#     if form.validate_on_submit():
+#         user = Usuario.query.filter_by(email=form.email.data).first()
+#         send_reset_email(user)
+#         flash('An email has been sent with instructions to reset your password.', 'info')
+#         return redirect(url_for('login'))
+#     return render_template('reset_request.html', title='Reset Password', form=form)
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -23,6 +25,7 @@ class Estado (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombreEstado  = db.Column(db.String(100), unique=False, nullable=False)
     municipios = db.relationship('Municipio', backref='estado', lazy=True)
+    # usuarios = db.relationship('Usuario', backref='estado', lazy=True)
             
     def __repr__(self):
         return '<Estado %r>' % self.nombreEstado
@@ -76,18 +79,22 @@ class Plan (db.Model):
             "nombrePlan": self.nombrePlan
         }
 
-class Usuario(db.Model):
+class Usuario(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     logUsr = db.Column(db.String(100), unique=True, nullable=False)
+    cedula = db.Column(db.String(20), unique=True, nullable=False)
+    numPhone = db.Column(db.String(100), unique=True, nullable=False)
     nombreUsr = db.Column(db.String(100), unique=False, nullable=False)
     claveUsr = db.Column(db.String(50), unique=False, nullable=False)
     correoUsr = db.Column(db.String(100), unique=True, nullable=False)
     feRegistro = db.Column(db.Date, unique=False, nullable=False)
     txCredenciales = db.Column(db.String(1000), unique=False, nullable=True)
     rankVendedor = db.Column(db.Integer, unique=False, nullable=True, default = 0)
+    edad = db.Column(db.Integer, unique=False, nullable=True, default = 18)
     rankComprador = db.Column(db.Integer, unique=False, nullable=True, default = 0)
     foto = db.Column(db.String(100), unique=True, nullable=False)
     idMunicipio  =  db.Column(db.Integer, db.ForeignKey('municipio.id'),nullable=False)
+    # idEstado = db.Column(db.Integer, db.ForeignKey('estado.id'), nullable=False)
     idPlan = db.Column(db.Integer, db.ForeignKey('plan.id'), nullable=False)
     servicios = db.relationship('Servicio', backref='usuario.id', lazy=True)
     preguntas= db.relationship('Pregunta', backref='usuario.id', lazy=True)
@@ -95,6 +102,7 @@ class Usuario(db.Model):
     contratos = db.relationship('Contrato', backref='usuario.id', lazy=True)
     favoritos = db.relationship('Favorito', backref='usuario.id', lazy=True)
     
+
     def __repr__(self):
         return '<Usuario %r>' % self.nombreUsr 
         
@@ -111,8 +119,12 @@ class Usuario(db.Model):
             "rankComprador": self.rankComprador,
             "foto": self.foto,
             "idMunicipio": self.idMunicipio,
-            "idPlan": self.idPlan
-        }
+            "idPlan": self.idPlan,
+            "numPhone":self.numPhone,
+            "cedula":self.cedula,
+            # "idEstado":self.idEstado,
+            "edad":self.edad
+           }
 
 
 class Servicio(db.Model):
