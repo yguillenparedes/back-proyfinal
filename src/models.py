@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+#from serializers import PagoSerializer
 
 
 db = SQLAlchemy()
@@ -25,7 +26,7 @@ class Estado (db.Model):
     municipios = db.relationship('Municipio', backref='estado', lazy=True)
             
     def __repr__(self):
-        return '<Estado %r>' % self.nombreEstado
+        return self.nombreEstado
 
     def serialize(self):
         return {
@@ -46,6 +47,7 @@ class Municipio (db.Model):
         return {
             "id": self.id,
             "nombreMunicipio": self.nombreMunicipio,
+            "nombreEstado": Estado.query.get(self.idEstado).__repr__(),
             "idEstado": self.idEstado,
         }
         
@@ -132,7 +134,7 @@ class Servicio(db.Model):
     foto = db.Column(db.String(100), unique=True, nullable=False)
     
     def __repr__(self):
-        return '<Servicio %r>' % self.nombreServicio
+        return  self.nombreServicio
 
     def serialize(self):
         return {
@@ -164,7 +166,8 @@ class Pregunta (db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "nombreMunicipio": self.idServicio,
+            "idServicio": self.idServicio,
+            "nombreServicio": Servicio.query.get(self.idServicio).__repr__(),
             "idUsrPregunta": self.idUsrPregunta,
             "pregunta": self.pregunta,
             "fePregunta": self.fePregunta,
@@ -179,7 +182,7 @@ class Formapago (db.Model):
     pagos = db.relationship('Pago', backref='formapago', lazy=True)
    
     def __repr__(self):
-        return '<Forma de pago %r>' % self.formaPago
+        return self.formaPago
 
     def serialize(self):
         return {
@@ -199,14 +202,17 @@ class Pago (db.Model):
     
     def __repr__(self):
         return '<Fecha facturación %r>' % self.feFacturacion
+        
 
     def serialize(self):
+        
         return {
             "id": self.id,
             "idUsuario": self.idUsuario,
             "feFacturacion": self.feFacturacion,
             "montoPago": self.montoPago,
             "idFormaPago": self.idFormaPago,
+            "formaPago": Formapago.query.get(self.idFormaPago).__repr__(),
             "nroConfirmacion": self.nroConfirmacion,
             "fePago": self.fePago,
             "statusPago": self.statusPago,
