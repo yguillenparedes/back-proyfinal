@@ -137,7 +137,6 @@ def borrar_categorias(id):
 @app.route('/pago', methods=['GET'])
 def obtener_pagos():
     pagos = Pago.query.all() 
-    print(pagos)
     TodosPagos = [pago.serialize() for pago in pagos] 
     return jsonify({"mensaje": "Lista de pagos", "Pagos": TodosPagos})
 
@@ -148,14 +147,15 @@ def obtener_pago_id(id):
         return jsonify({ "mensaje": 'Pago no encontrado', "Pago": {}})
     return jsonify({ "mensaje": 'Pago leido satisfactoriamente', "Pago": pago_encontrado.serialize()})
 
-@app.route('/pagoUsr/<idUsuario>', methods=['GET'])
-def obtener_pago_usr(idUsuario):
-    pago_encontrado = Pago.query.filter_by(idUsuario = idUsuario).first()
+@app.route('/pagoUsr/<idUsr>', methods=['GET'])
+def obtener_pago_usr(idUsr):
+    pago_encontrado = Pago.query.filter_by(idUsuario = idUsr).first()
     if not pago_encontrado:
         return jsonify({ "mensaje": 'Pago no encontrado', "Pago": {}})
-    #pago_encontrado = Pago.query.filter_by(idUsuario = idUsuario)
-    pago_encontrado = Pago.query.filter_by(idUsuario = idUsuario).all()
-    return jsonify({ "mensaje": 'Pago leido satisfactoriamente', "Pago": pago_encontrado.serialize()})
+    pagos = Pago.query.filter_by(idUsuario = idUsr).all()
+    TodosPagosUsr = [pago.serialize() for pago in pagos] 
+    print(pago_encontrado)
+    return jsonify({ "mensaje": 'Pago leido satisfactoriamente', "Pago": TodosPagosUsr})
 
 @app.route('/pago', methods=['POST'])
 def agregar_pagos_post():
