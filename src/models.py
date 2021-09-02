@@ -127,7 +127,8 @@ class Usuario(db.Model,UserMixin):
             "numPhone":self.numPhone,
             "cedula":self.cedula,
             "edad":self.edad,
-            "direccion":self.direccion
+            "direccion":self.direccion,
+            "claveUsr":self.claveUsr
            }
 
 
