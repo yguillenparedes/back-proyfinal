@@ -55,15 +55,17 @@ class Municipio (db.Model):
         
 class Categoria (db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombreCategoria  = db.Column(db.String(100), unique=False, nullable=False)
-    servicios = db.relationship('Servicio', backref='categoria', lazy=True)   
+    nombreCategoria  = db.Column(db.String(1000), unique=False, nullable=False)
+    servicios = db.relationship('Servicio', backref='categoria', lazy=True)
+    foto = db.Column(db.String(100), unique=True, nullable=False)   
     def __repr__(self):
         return self.nombreCategoria
 
     def serialize(self):
         return {
             "id": self.id,
-            "nombreCategoria": self.nombreCategoria
+            "nombreCategoria": self.nombreCategoria,
+             "foto":self.foto
        }
 
 class Plan (db.Model):
@@ -78,6 +80,7 @@ class Plan (db.Model):
         return {
             "id": self.id,
             "nombrePlan": self.nombrePlan
+           
         }
 
 class Usuario(db.Model,UserMixin):

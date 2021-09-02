@@ -65,7 +65,8 @@ def obtener_categoria_id(id):
 @app.route('/categoria', methods=['POST'])
 def agregar_categorias_post():
     nombreCategoria = request.json["nombreCategoria"]
-    nueva_categoria = Categoria(nombreCategoria = nombreCategoria)
+    foto = request.json["foto"]
+    nueva_categoria = Categoria(nombreCategoria = nombreCategoria, foto=foto)
     categoria_encontrada = Categoria.query.filter_by(nombreCategoria = nombreCategoria).first()
     if categoria_encontrada:
         return jsonify({ "mensaje": 'La categoría ya existe', "Categoría": nombreCategoria})
@@ -446,35 +447,7 @@ def logout():
     return redirect(url_for('/'))
 
 
-# @app.route("/usuarios/<string:logUsr>")
-# def user_posts(logUsr):
-#     page = request.args.get('page', 1, type=int)
-#     user = Usuario.query.filter_by(logUsr=logUsr).first_or_404()
-#     posts = Servicio.query.filter_by(author=user)\
-#         .order_by(Servicio.date_posted.desc())\
-#         .paginate(page=page, per_page=5)
-#     return render_template('user_posts.html', posts=posts, user=user)
 
-# def send_reset_email(user):
-#     token = user.get_reset_token()
-#     msg = Message('Password Reset Request',
-#                   sender='noreply@demo.com',
-#                   recipients=[user.email])
-#     msg.body = f'''To reset your password, visit the following link:
-# {url_for('reset_token', token=token, _external=True)}'''
-    
-
-# @app.route("/reset_password", methods=['GET', 'POST'])
-# def reset_request():
-#     if current_user.is_authenticated:
-#         return redirect(url_for('home'))
-#     form = RequestResetForm()
-#     if form.validate_on_submit():
-#         user = Usuario.query.filter_by(email=form.email.data).first()
-#         send_reset_email(user)
-#         flash('An email has been sent with instructions to reset your password.', 'info')
-#         return redirect(url_for('login'))
-#     return render_template('reset_request.html', title='Reset Password', form=form)
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
