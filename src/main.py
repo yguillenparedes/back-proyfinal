@@ -12,8 +12,6 @@ from admin import setup_admin
 from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio,Pago
 from flask_login import LoginManager,logout_user
 from flask_mail import Message
-import string
-import random
 
 #from models import Person
 
@@ -407,6 +405,26 @@ def agregar_servicios_post():
     statusServicio = int(request.json["statusServicio"])
     palabrasClave= request.json["palabrasClave"]
     nuevo_servicio = Servicio(nombreServicio = nombreServicio, idUsrVende=idUsrVende, fePublicacion=fePublicacion, descripcion=descripcion, txCredenciales=txCredenciales, inDomicilio=inDomicilio,foto=foto, idCategoria=idCategoria, statusServicio = statusServicio, palabrasClave=palabrasClave)
+    db.session.add(nuevo_servicio)
+    db.session.commit()
+    return jsonify({"mensaje":"servicio registrado exitosamente", "servicio": nuevo_servicio.serialize()})
+
+@app.route('/serviciosUsr', methods=['POST'])
+def agregar_servicios_usr():
+    nombreServicio = request.json["nombreServicio"]
+    nombreUsr = request.json["nombreUsr"]
+    fePublicacion = request.json["fePublicacion"]
+    descripcion = request.json["descripcion"]
+    txCredenciales = request.json["txCredenciales"]
+    inDomicilio = request.json["inDomicilio"]
+    foto = request.json["foto"]
+    idCategoria = int(request.json["idCategoria"])
+    statusServicio = int(request.json["statusServicio"])
+    palabrasClave= request.json["palabrasClave"]
+    usrVende = Usuario.query.filter_by(nombreUsr = nombreUsr).first()
+    idUsrVende = usrVende.id
+    print(idUsrVende)
+    nuevo_servicio = Servicio(nombreServicio = nombreServicio, idUsrVende = idUsrVende, fePublicacion=fePublicacion, descripcion=descripcion, txCredenciales=txCredenciales, inDomicilio=inDomicilio,foto=foto, idCategoria=idCategoria, statusServicio = statusServicio, palabrasClave=palabrasClave)
     db.session.add(nuevo_servicio)
     db.session.commit()
     return jsonify({"mensaje":"servicio registrado exitosamente", "servicio": nuevo_servicio.serialize()})
