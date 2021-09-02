@@ -124,6 +124,7 @@ def agregar_usuarios_post():
     db.session.commit()
     return jsonify({"mensaje":"usuario registrado exitosamente", "usuario": nuevo_usuario.serialize()})
 
+
 @app.route('/categoria/<id>', methods=['DELETE'])
 def borrar_categorias(id):
     categoria_encontrada = Categoria.query.get(id)
@@ -341,6 +342,28 @@ def obtener_servicios_id(id):
         return jsonify({ "mensaje": 'servicio no encontrado', "servicio": {}})
     return jsonify({ "mensaje": 'servicio obtenido satisfactoriamente', "servicio": servicio_encontrado.serialize()})
 
+
+@app.route('/servicioUsr/<idUsr>', methods=['GET'])
+def obtener_servicio_usr(idUsr):
+    servicio_encontrado = Servicio.query.filter_by(idUsrVende = idUsr).first()
+    if not servicio_encontrado:
+        return jsonify({ "mensaje": 'Servicio no encontrado', "Servicio": {}})
+    servicios = Servicio.query.filter_by(idUsrVende = idUsr).all()
+    TodosServiciosUsr = [servicio.serialize() for servicio in servicios] 
+    print(servicio_encontrado)
+    return jsonify({ "mensaje": 'Servicios leidos satisfactoriamente', "Servicios": TodosServiciosUsr})
+
+
+@app.route('/servicioCat/<idCat>', methods=['GET'])
+def obtener_servicio_cat(idCat):
+    servicio_encontrado = Servicio.query.filter_by(idCategoria = idCat).first()
+    if not servicio_encontrado:
+        return jsonify({ "mensaje": 'Servicio no encontrado', "Servicio": {}})
+    servicios = Servicio.query.filter_by(idCategoria = idCat).all()
+    TodosServiciosCat = [servicio.serialize() for servicio in servicios] 
+    print(servicio_encontrado)
+    return jsonify({ "mensaje": 'Servicios leidos satisfactoriamente', "Servicios": TodosServiciosCat})
+
 @app.route('/servicios', methods=['POST'])
 def agregar_servicios_post():
     nombreServicio = request.json["nombreServicio"]
@@ -373,6 +396,39 @@ def actualizar_servicios(id):
     servicio_encontrado.palabrasClave = request.json["palabrasClave"]
     db.session.commit()
     return jsonify({ "mensaje": 'Servicio actualizado exitosamente', "Servicio": servicio_encontrado.serialize()})    
+
+@app.route('/serviciosUsrAct', methods=['PUT'])
+def actualizar_servicios_por_usuario():
+    idServicio = request.json["idServicio"]
+    idUsrVende = request.json["idUsrVende"]
+    servicio_encontrado = Servicio.query.filter_by(id= idServicio, idUsrVende = idUsrVende).all()
+    if not servicio_encontrado:
+        return jsonify({ "mensaje": 'Servicio no encontrado', "Servicio": {}})
+    servicio_encontrado = Servicio.query.get(idServicio)
+    servicio_encontrado.nombreServicio = request.json["nombreServicio"]
+    servicio_encontrado.descripcion = request.json["descripcion"]
+    servicio_encontrado.txCredenciales = request.json["txCredenciales"]
+    servicio_encontrado.inDomicilio = request.json["inDomicilio"]
+    servicio_encontrado.foto = request.json["foto"]
+    servicio_encontrado.idCategoria = int(request.json["idCategoria"])
+    servicio_encontrado.palabrasClave = request.json["palabrasClave"]
+    db.session.commit()
+    return jsonify({ "mensaje": 'Servicio actualizado exitosamente', "Servicio": servicio_encontrado.serialize()}) 
+
+@app.route('/serviciosDelUsr', methods=['DELETE'])
+def borrar_servicios_usuario():
+    idServicio = request.json["idServicio"]
+    idUsrVende = request.json["idUsrVende"]
+    servicio_encontrado = Servicio.query.filter_by(id = idServicio, idUsrVende = idUsrVende).all()
+    if not servicio_encontrado:
+        return jsonify({ "mensaje": 'Servicio no encontrado o no es posible ser eliminado', "Servicio": {}})
+    servicio_encontrado = Servicio.query.get(idServicio)
+    db.session.delete(servicio_encontrado)
+    db.session.commit()
+    return jsonify({ "mensaje": 'El servicio fue eliminado satisfactoriamente', "": servicio_encontrado.serialize()})
+
+
+
 
 @app.route('/servicios/<id>', methods=['DELETE'])
 def borrar_servicios(id):

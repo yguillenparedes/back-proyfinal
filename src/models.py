@@ -58,7 +58,7 @@ class Categoria (db.Model):
     nombreCategoria  = db.Column(db.String(100), unique=False, nullable=False)
     servicios = db.relationship('Servicio', backref='categoria', lazy=True)   
     def __repr__(self):
-        return '<Categoria %r>' % self.nombreCategoria
+        return self.nombreCategoria
 
     def serialize(self):
         return {
@@ -156,6 +156,7 @@ class Servicio(db.Model):
             "descripcion": self.descripcion,
             "txCredenciales": self.txCredenciales,
             "idCategoria": self.idCategoria,
+            "nombreCategoria": Categoria.query.get(self.idCategoria).__repr__(),
             "statusServicio": self.statusServicio,
             "foto": self.foto,
             "inDomicilio": self.inDomicilio,
