@@ -475,10 +475,6 @@ def logout():
     return redirect(url_for('/'))
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
