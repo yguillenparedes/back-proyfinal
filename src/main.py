@@ -93,7 +93,8 @@ def obtener_categoria_id(id):
 @app.route('/categoria', methods=['POST'])
 def agregar_categorias_post():
     nombreCategoria = request.json["nombreCategoria"]
-    nueva_categoria = Categoria(nombreCategoria = nombreCategoria)
+    foto = request.json["foto"]
+    nueva_categoria = Categoria(nombreCategoria = nombreCategoria, foto=foto)
     categoria_encontrada = Categoria.query.filter_by(nombreCategoria = nombreCategoria).first()
     if categoria_encontrada:
         return jsonify({ "mensaje": 'La categoría ya existe', "Categoría": nombreCategoria})
@@ -474,6 +475,10 @@ def logout():
     return redirect(url_for('/'))
 
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> develop
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
