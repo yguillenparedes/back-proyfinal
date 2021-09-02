@@ -10,7 +10,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio,Pago
-from flask_login import LoginManager
+from flask_login import LoginManager,logout_user
 from flask_mail import Message
 
 #from models import Person
@@ -119,7 +119,8 @@ def agregar_usuarios_post():
     numPhone=request.json["numPhone"]
     cedula=request.json["cedula"]
     edad=int(request.json["edad"])
-    nuevo_usuario = Usuario(edad=edad, nombreUsr = nombreUsr, cedula=cedula,logUsr=logUsr, numPhone=numPhone, correoUsr=correousuario, feRegistro=feRegistro, txCredenciales=txCredenciales, rankVendedor=rankVendedor, rankComprador=rankComprador,foto=foto, idMunicipio=idMunicipio, idPlan = idPlan, claveUsr=claveUsr)
+    direccion=request.json["direccion"]
+    nuevo_usuario = Usuario(edad=edad,direccion=direccion, nombreUsr = nombreUsr, cedula=cedula,logUsr=logUsr, numPhone=numPhone, correoUsr=correousuario, feRegistro=feRegistro, txCredenciales=txCredenciales, rankVendedor=rankVendedor, rankComprador=rankComprador,foto=foto, idMunicipio=idMunicipio, idPlan = idPlan, claveUsr=claveUsr)
     db.session.add(nuevo_usuario)
     db.session.commit()
     return jsonify({"mensaje":"usuario registrado exitosamente", "usuario": nuevo_usuario.serialize()})
