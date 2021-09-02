@@ -87,6 +87,7 @@ class Usuario(db.Model,UserMixin):
     nombreUsr = db.Column(db.String(100), unique=False, nullable=False)
     claveUsr = db.Column(db.String(50), unique=False, nullable=False)
     correoUsr = db.Column(db.String(100), unique=True, nullable=False)
+    direccion = db.Column(db.String(100), unique=True, nullable=False)
     feRegistro = db.Column(db.Date, unique=False, nullable=False)
     txCredenciales = db.Column(db.String(1000), unique=False, nullable=True)
     rankVendedor = db.Column(db.Integer, unique=False, nullable=True, default = 0)
@@ -94,7 +95,6 @@ class Usuario(db.Model,UserMixin):
     rankComprador = db.Column(db.Integer, unique=False, nullable=True, default = 0)
     foto = db.Column(db.String(100), unique=True, nullable=False)
     idMunicipio  =  db.Column(db.Integer, db.ForeignKey('municipio.id'),nullable=False)
-    # idEstado = db.Column(db.Integer, db.ForeignKey('estado.id'), nullable=False)
     idPlan = db.Column(db.Integer, db.ForeignKey('plan.id'), nullable=False)
     servicios = db.relationship('Servicio', backref='usuario.id', lazy=True)
     preguntas= db.relationship('Pregunta', backref='usuario.id', lazy=True)
@@ -122,8 +122,8 @@ class Usuario(db.Model,UserMixin):
             "idPlan": self.idPlan,
             "numPhone":self.numPhone,
             "cedula":self.cedula,
-            # "idEstado":self.idEstado,
-            "edad":self.edad
+            "edad":self.edad,
+            "direccion":self.direccion
            }
 
 
