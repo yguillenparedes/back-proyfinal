@@ -12,6 +12,8 @@ from admin import setup_admin
 from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio,Pago
 from flask_login import LoginManager,logout_user
 from flask_mail import Message
+import string
+import random
 
 #from models import Person
 
@@ -46,6 +48,32 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route('/login', methods=['POST'])
+def validez_login_usuario():
+    logUsr = request.json["logUsr"]
+    claveUsr = request.json["claveUsr"]
+    usuario_encontrado = Usuario.query.filter_by(logUsr= logUsr, claveUsr = claveUsr).first()
+    if not usuario_encontrado:
+        return jsonify({ "mensaje": 'El usuario y/o contraseña no son correctos', "Usuario": {}})
+    usuario_encontrado = Usuario.query.get(usuario_encontrado.id)
+    return jsonify({ "mensaje": 'Bienvenido', "Usuario": usuario_encontrado.serialize()})
+
+@app.route('/restaurar', methods=['POST'])
+def restaurar_contrasena():
+    logUsr = request.json["logUsr"]
+    correoUsr = request.json["correoUsr"]
+    numPhone = request.json["numPhone"]
+    usuario_encontrado = Usuario.query.filter_by(logUsr= logUsr, correoUsr = correoUsr, numPhone = numPhone).first()
+    if not usuario_encontrado:
+        return jsonify({ "mensaje": 'Los datos proporcionados no son correctos', "Usuario": {}})
+    usuario_encontrado = Usuario.query.get(usuario_encontrado.id)
+    usuario_encontrado.claveUsr = "ABC123"
+    #letters = str.ascii_uppercase()
+    #nueva_clave = ''.join(random.choice(letters) for i in range(8))
+    #usuario_encontrado.claveUsr = nueva_clave
+    db.session.commit()
+    return jsonify({ "mensaje": 'Su clave ha sido restaurada, su nueva clave es: ABC123', "Usuario": usuario_encontrado.serialize()})
 
 @app.route('/categoria', methods=['GET'])
 def obtener_categorias():
@@ -447,7 +475,10 @@ def logout():
     return redirect(url_for('/'))
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
