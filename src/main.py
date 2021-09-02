@@ -47,6 +47,16 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+@app.route('/login', methods=['POST'])
+def validez_login_usuario():
+    logUsr = request.json["logUsr"]
+    claveUsr = request.json["claveUsr"]
+    usuario_encontrado = Usuario.query.filter_by(logUsr= logUsr, claveUsr = claveUsr).first()
+    if not usuario_encontrado:
+        return jsonify({ "mensaje": 'El usuario y/o contraseña no son correctos', "Usuario": {}})
+    usuario_encontrado = Usuario.query.get(usuario_encontrado.id)
+    return jsonify({ "mensaje": 'Bienvenido', "Usuario": usuario_encontrado.serialize()})
+
 @app.route('/categoria', methods=['GET'])
 def obtener_categorias():
     categorias = Categoria.query.all() 
@@ -444,6 +454,8 @@ def borrar_servicios(id):
 def logout():
     logout_user()
     return redirect(url_for('/'))
+
+
 
 
 # @app.route("/usuarios/<string:logUsr>")
