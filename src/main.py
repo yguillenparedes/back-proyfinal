@@ -10,14 +10,11 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio,Pago
-from flask_login import LoginManager
-from flask_mail import Message
 
 #from models import Person
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
-login_manager = LoginManager(app)
 app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -91,7 +88,8 @@ def obtener_categoria_id(id):
 @app.route('/categoria', methods=['POST'])
 def agregar_categorias_post():
     nombreCategoria = request.json["nombreCategoria"]
-    nueva_categoria = Categoria(nombreCategoria = nombreCategoria)
+    foto = request.json["foto"]
+    nueva_categoria = Categoria(nombreCategoria = nombreCategoria, foto=foto)
     categoria_encontrada = Categoria.query.filter_by(nombreCategoria = nombreCategoria).first()
     if categoria_encontrada:
         return jsonify({ "mensaje": 'La categoría ya existe', "Categoría": nombreCategoria})
@@ -115,12 +113,6 @@ def obtener_usuarios():
     Todoslosusuarios = [usuarios.serialize() for usuarios in usuarios] 
     return jsonify({"mensaje": "Lista de usuarios", "usuarios": Todoslosusuarios})
 
-@login_manager.user_loader
-def load_user(user_id):
-    for user in Usuario:
-        if user.id == int(user_id):
-            return user
-    return None    
 
 @app.route('/usuarios/<id>', methods=['GET'])
 def obtener_usuario_id(id):
@@ -145,7 +137,8 @@ def agregar_usuarios_post():
     numPhone=request.json["numPhone"]
     cedula=request.json["cedula"]
     edad=int(request.json["edad"])
-    nuevo_usuario = Usuario(edad=edad, nombreUsr = nombreUsr, cedula=cedula,logUsr=logUsr, numPhone=numPhone, correoUsr=correousuario, feRegistro=feRegistro, txCredenciales=txCredenciales, rankVendedor=rankVendedor, rankComprador=rankComprador,foto=foto, idMunicipio=idMunicipio, idPlan = idPlan, claveUsr=claveUsr)
+    direccion=request.json["direccion"]
+    nuevo_usuario = Usuario(edad=edad,direccion=direccion, nombreUsr = nombreUsr, cedula=cedula,logUsr=logUsr, numPhone=numPhone, correoUsr=correousuario, feRegistro=feRegistro, txCredenciales=txCredenciales, rankVendedor=rankVendedor, rankComprador=rankComprador,foto=foto, idMunicipio=idMunicipio, idPlan = idPlan, claveUsr=claveUsr)
     db.session.add(nuevo_usuario)
     db.session.commit()
     return jsonify({"mensaje":"usuario registrado exitosamente", "usuario": nuevo_usuario.serialize()})
@@ -485,43 +478,8 @@ def borrar_servicios(id):
     db.session.commit()
     return jsonify({ "mensaje": ' eliminado satisfactoriamente', "": servicio_encontrado.serialize()})
 
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('/'))
 
 
-
-
-# @app.route("/usuarios/<string:logUsr>")
-# def user_posts(logUsr):
-#     page = request.args.get('page', 1, type=int)
-#     user = Usuario.query.filter_by(logUsr=logUsr).first_or_404()
-#     posts = Servicio.query.filter_by(author=user)\
-#         .order_by(Servicio.date_posted.desc())\
-#         .paginate(page=page, per_page=5)
-#     return render_template('user_posts.html', posts=posts, user=user)
-
-# def send_reset_email(user):
-#     token = user.get_reset_token()
-#     msg = Message('Password Reset Request',
-#                   sender='noreply@demo.com',
-#                   recipients=[user.email])
-#     msg.body = f'''To reset your password, visit the following link:
-# {url_for('reset_token', token=token, _external=True)}'''
-    
-
-# @app.route("/reset_password", methods=['GET', 'POST'])
-# def reset_request():
-#     if current_user.is_authenticated:
-#         return redirect(url_for('home'))
-#     form = RequestResetForm()
-#     if form.validate_on_submit():
-#         user = Usuario.query.filter_by(email=form.email.data).first()
-#         send_reset_email(user)
-#         flash('An email has been sent with instructions to reset your password.', 'info')
-#         return redirect(url_for('login'))
-#     return render_template('reset_request.html', title='Reset Password', form=form)
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

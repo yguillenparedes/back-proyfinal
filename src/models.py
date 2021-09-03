@@ -55,15 +55,17 @@ class Municipio (db.Model):
         
 class Categoria (db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombreCategoria  = db.Column(db.String(100), unique=False, nullable=False)
-    servicios = db.relationship('Servicio', backref='categoria', lazy=True)   
+    nombreCategoria  = db.Column(db.String(1000), unique=False, nullable=False)
+    servicios = db.relationship('Servicio', backref='categoria', lazy=True)
+    foto = db.Column(db.String(100), unique=True, nullable=False)   
     def __repr__(self):
-        return '<Categoria %r>' % self.nombreCategoria
+        return self.nombreCategoria
 
     def serialize(self):
         return {
             "id": self.id,
-            "nombreCategoria": self.nombreCategoria
+            "nombreCategoria": self.nombreCategoria,
+             "foto":self.foto
        }
 
 class Plan (db.Model):
@@ -78,6 +80,7 @@ class Plan (db.Model):
         return {
             "id": self.id,
             "nombrePlan": self.nombrePlan
+           
         }
 
 class Usuario(db.Model,UserMixin):
@@ -88,6 +91,7 @@ class Usuario(db.Model,UserMixin):
     nombreUsr = db.Column(db.String(100), unique=False, nullable=False)
     claveUsr = db.Column(db.String(50), unique=False, nullable=False)
     correoUsr = db.Column(db.String(100), unique=True, nullable=False)
+    direccion = db.Column(db.String(100), unique=True, nullable=False)
     feRegistro = db.Column(db.Date, unique=False, nullable=False)
     txCredenciales = db.Column(db.String(1000), unique=False, nullable=True)
     rankVendedor = db.Column(db.Integer, unique=False, nullable=True, default = 0)
@@ -95,7 +99,6 @@ class Usuario(db.Model,UserMixin):
     rankComprador = db.Column(db.Integer, unique=False, nullable=True, default = 0)
     foto = db.Column(db.String(100), unique=True, nullable=False)
     idMunicipio  =  db.Column(db.Integer, db.ForeignKey('municipio.id'),nullable=False)
-    # idEstado = db.Column(db.Integer, db.ForeignKey('estado.id'), nullable=False)
     idPlan = db.Column(db.Integer, db.ForeignKey('plan.id'), nullable=False)
     servicios = db.relationship('Servicio', backref='usuario.id', lazy=True)
     preguntas= db.relationship('Pregunta', backref='usuario.id', lazy=True)
@@ -123,8 +126,9 @@ class Usuario(db.Model,UserMixin):
             "idPlan": self.idPlan,
             "numPhone":self.numPhone,
             "cedula":self.cedula,
-            # "idEstado":self.idEstado,
-            "edad":self.edad
+            "edad":self.edad,
+            "direccion":self.direccion,
+            "claveUsr":self.claveUsr
            }
 
 
@@ -156,6 +160,7 @@ class Servicio(db.Model):
             "descripcion": self.descripcion,
             "txCredenciales": self.txCredenciales,
             "idCategoria": self.idCategoria,
+            "nombreCategoria": Categoria.query.get(self.idCategoria).__repr__(),
             "statusServicio": self.statusServicio,
             "foto": self.foto,
             "inDomicilio": self.inDomicilio,
