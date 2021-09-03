@@ -11,12 +11,21 @@ from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, Categoria, Usuario,Contrato,Estado,Formapago,Municipio,Plan,Pregunta,Servicio,Pago
 from flask_login import LoginManager
-from flask_mail import Message
+from flask_mail import Mail, Message
 
 #from models import Person
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
+#Para el envio de correos
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'profs.athome@gmail.com'
+app.config['MAIL_PASSWORD'] = 'yrajoanda'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+#Fin configuración envio de correos
+
 login_manager = LoginManager(app)
 app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
@@ -26,6 +35,7 @@ CORS(app)
 db.init_app(app)
 CORS(app)
 setup_admin(app)
+mail = Mail(app)
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -71,6 +81,9 @@ def restaurar_contrasena():
     #nueva_clave = ''.join(random.choice(letters) for i in range(8))
     #usuario_encontrado.claveUsr = nueva_clave
     db.session.commit()
+    msg = Message('Su contraseña ha sido restaurada', sender = 'profs.athome@gmail.com', recipients = [usuario_encontrado.correoUsr])
+    msg.body = "La clave de acceso a Professionals at Home ha sido restaurada, su nueva clave es: ABC123"
+    mail.send(msg)
     return jsonify({ "mensaje": 'Su clave ha sido restaurada, su nueva clave es: ABC123', "Usuario": usuario_encontrado.serialize()})
 
 @app.route('/categoria', methods=['GET'])
